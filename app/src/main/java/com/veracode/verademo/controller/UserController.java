@@ -155,15 +155,17 @@ public class UserController {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
-			/* START BAD CODE */
+			/* MITITGATE BAD CODE */
 			// Execute the query
 			logger.info("Creating the Statement");
-			String sqlQuery = "select username, password, password_hint, created_at, last_login, real_name, blab_name from users where username='"
-					+ username + "' and password='" + md5(password) + "';";
-			sqlStatement = connect.createStatement();
+
+			PreparedStatement sqlQuery1 = connect.prepareStatement("SELECT username, password, password_hint, created_at, last_login, real_name, blab_name FROM users WHERE username=? AND password=?;");
+			sqlQuery1.setString(1, username);
+			sqlQuery1.setString(2, md5(password));
+
 			logger.info("Execute the Statement");
-			ResultSet result = sqlStatement.executeQuery(sqlQuery);
-			/* END BAD CODE */
+			ResultSet result = sqlQuery1.executeQuery();
+			/* END MITIGATION CODE */
 
 			// Did we find exactly 1 user that matched?
 			if (result.first()) {
@@ -296,14 +298,13 @@ public class UserController {
 			HttpServletResponse httpResponse,
 			Model model) {
 		logger.info("Entering processRegister");
-		Utils.setSessionUserName(httpRequest, httpResponse, username);
+		Utils.setSessionRegisterUserName(httpRequest, httpResponse, username);
 
 		// Get the Database Connection
 		logger.info("Creating the Database connection");
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
-
 			String sql = "SELECT username FROM users WHERE username = '" + username + "'";
 			Statement statement = connect.createStatement();
 			ResultSet result = statement.executeQuery(sql);
@@ -337,8 +338,7 @@ public class UserController {
 			HttpServletResponse response,
 			Model model) {
 		logger.info("Entering processRegisterFinish");
-
-		String username = (String) httpRequest.getSession().getAttribute("username");
+		String username = (String) httpRequest.getSession().getAttribute("username-register");
 
 		// Do the password and cpassword parameters match ?
 		if (password.compareTo(cpassword) != 0) {

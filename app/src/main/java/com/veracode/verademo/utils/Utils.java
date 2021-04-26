@@ -29,6 +29,11 @@ public class Utils {
 		upgradeCookieSecurityForHttpsIfRequired(response);
 	}
 
+	public static void setSessionRegisterUserName(HttpServletRequest request, HttpServletResponse response, String value) {
+		request.getSession().setAttribute("username-register", value);
+		upgradeCookieSecurityForHttpsIfRequired(response);
+	}
+
 	private static void upgradeCookieSecurityForHttpsIfRequired(HttpServletResponse response) {
 		if (!isConnectionFromHttps()) {
 			return;

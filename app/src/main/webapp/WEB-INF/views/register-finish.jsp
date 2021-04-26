@@ -79,7 +79,7 @@
 																		<tr>
 										<td>Username</td>
 										<td><div class="form-group">
-												<%= request.getSession().getAttribute("username") %>
+												<%= request.getSession().getAttribute("username-register") %>
 											</div></td>
 									</tr>
 									<tr>
